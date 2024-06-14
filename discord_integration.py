@@ -1,11 +1,10 @@
-import nextcord
+import discord
 from secret import token
-from discord.ext import voice_recv    
-from nextcord.ext import commands
+from discord.ext import commands, voice_recv
 
-nextcord.opus._load_default()
+discord.opus._load_default()
 
-bot = commands.Bot(command_prefix=commands.when_mentioned, intents=nextcord.Intents.all())
+bot = commands.Bot(command_prefix=commands.when_mentioned, intents=discord.Intents.all())
 
 class Main(commands.Cog):
     def __init__(self, bot):
@@ -32,7 +31,7 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
     channel = bot.get_channel(1250016469237108748) # wkh
     await channel.connect()
-    await bot.change_presence(status=nextcord.Status.online)
+    await bot.change_presence(status=discord.Status.online)
 
 async def setup_hook():
     await bot.add_cog(Main(bot))
