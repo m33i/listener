@@ -4,9 +4,9 @@ from discord.ext import commands, voice_recv
 import datetime
 import ffmpeg
 import asyncio
+import os
 
 pcm_file_path = "audio.pcm"
-mp3_file_path = "audio.mp3"
 
 discord.opus._load_default()
 
@@ -40,8 +40,27 @@ async def save_audio():
 
 def convert_pcm_to_mp3():
     try:
-        ffmpeg.input(pcm_file_path, format='s16le', ar='48000', ac='2').output(mp3_file_path, audio_bitrate='64k').run()
-        print(f"converted to {mp3_file_path}")
+        if os.path.exists(pcm_file_path):
+            pcm_file_size = os.path.getsize(pcm_file_path)
+            #if pcm_file_size > 5 * 1024 * 1024:  # 5 MB
+            if pcm_file_size > 30 * 1024 * 1024:  # 30 MB
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                mp3_file_path = f"audio_{timestamp}.mp3"
+
+                if not os.path.exists(mp3_file_path):
+                    # pcm to mp3
+                    ffmpeg.input(pcm_file_path, format='s16le', ar='48000', ac='2').output(mp3_file_path, audio_bitrate='48k').run() # 64k, 32k
+                    print(f"converted to {mp3_file_path}")
+
+                    # deletes pcm
+                    os.remove(pcm_file_path)
+                    print(f"deleted {pcm_file_path}")
+                else:
+                    print(f"{mp3_file_path} already exists")
+            else:
+                print(f"{pcm_file_path} size is less than 30 MB")
+        else:
+            print(f"{pcm_file_path} does not exist")
     except Exception as e:
         print(f"conversion error: {e}")
 
